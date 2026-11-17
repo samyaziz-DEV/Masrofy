@@ -1,368 +1,484 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#08120e">
-  <title>مصروفي</title>
-  <style>
-    :root{--bg:#08120e;--card:#102019;--text:#e9f5ee;--muted:#9bb1a4;--green:#4ade80;--red:#fb7185;--border:#ffffff18}
-    *{box-sizing:border-box}
-    body{margin:0;padding:18px 14px 60px;max-width:680px;margin-inline:auto;background:radial-gradient(700px 400px at 85% 0,#16412a,transparent 65%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
-    h1{font-size:23px;margin:0}h2{font-size:16px;margin:0 0 12px}
-    .top,.row,.between{display:flex;align-items:center;gap:9px}.top,.between{justify-content:space-between}
-    .card{padding:15px;margin:12px 0;background:linear-gradient(160deg,#ffffff12,#ffffff05);border:1px solid var(--border);border-radius:18px}
-    input,select,textarea,button{font:inherit;border-radius:11px;padding:10px;border:1px solid var(--border)}
-    input,select,textarea{width:100%;background:#ffffff0b;color:var(--text)}
-    select option{color:#111}textarea{min-height:90px;resize:vertical}
-    button{background:var(--green);color:#062713;border:0;font-weight:700;cursor:pointer}
-    button.secondary{background:#ffffff10;color:var(--text);border:1px solid var(--border)}
-    button.danger{background:#4b1720;color:#ffdce1}
-    .form{display:grid;gap:8px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .stat{text-align:center;padding:11px 4px;border-radius:13px;background:#ffffff08}
-    .stat small{display:block;color:var(--muted);font-size:12px}.stat b{font-size:17px}
-    .out{color:var(--red)}.in{color:var(--green)}.muted{color:var(--muted);font-size:13px}
-    .tx{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--border)}
-    .tx:first-child{border-top:0}.txname{font-weight:650}.txmeta{font-size:12px;color:var(--muted);margin-top:3px}
-    .amount{white-space:nowrap;text-align:left;font-weight:700}.tx select{width:auto;padding:4px 7px;font-size:12px;margin-top:6px}
-    .smallbtn{padding:2px 7px;background:none;color:var(--muted);font-size:19px}
-    .msg{min-height:20px;color:var(--green);font-size:13px}
-    .account{padding:10px 0;border-top:1px solid var(--border)}
-    .account:first-child{border-top:0}.accountline{display:flex;align-items:center;gap:7px}
-    .accountline input{flex:1}.inline{display:flex;gap:7px}
-    details summary{cursor:pointer;font-weight:650}
-    .bar{height:8px;background:#ffffff12;border-radius:8px;overflow:hidden;margin-top:6px}
-    .bar i{display:block;height:100%;background:var(--green)}
-    #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#102019;border:1px solid var(--green);padding:10px 16px;border-radius:20px;opacity:0;transition:.2s;pointer-events:none}
-    #toast.show{opacity:1}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07110c">
+<title>مصروفي | Masrofy</title>
+<style>
+:root{--bg:#07110c;--text:#edf7f0;--muted:#9aafa1;--green:#4ade80;--red:#fb7185;--border:#ffffff18}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:18px 14px 60px;max-width:680px;margin-inline:auto;min-height:100vh;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(700px 400px at 85% 0,rgba(74,222,128,.19),transparent 65%),#07110c}
+body[dir=ltr]{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+h1{font-size:22px;margin:0}h2{font-size:16px;margin:0 0 12px}
+.top,.row,.between{display:flex;align-items:center;gap:9px}.top,.between{justify-content:space-between}
+.panel{padding:15px;margin:12px 0;background:linear-gradient(160deg,#ffffff12,#ffffff05);border:1px solid var(--border);border-radius:18px}
+input,select,textarea,button{font:inherit;border-radius:11px;padding:10px;border:1px solid var(--border)}
+input,select,textarea{width:100%;background:#ffffff0b;color:var(--text)}
+select option{color:#111}textarea{min-height:86px;resize:vertical}
+button{background:var(--green);color:#062713;border:0;font-weight:700;cursor:pointer}
+button.secondary{background:#ffffff10;color:var(--text);border:1px solid var(--border);font-weight:500}
+button.danger{background:#4a1720;color:#ffdce1}
+.small{width:auto;padding:7px 12px;border-radius:20px}
+.form{display:grid;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{text-align:center;padding:10px 4px;border-radius:13px;background:#ffffff08}
+.stat small{display:block;color:var(--muted);font-size:12px}.stat b{font-size:16px}
+.in{color:var(--green)}.out{color:var(--red)}.muted{color:var(--muted);font-size:13px}
+.deck{position:relative;width:min(100%,360px);aspect-ratio:1.586;margin:22px auto 12px;perspective:1100px;touch-action:pan-y}
+.card-shell{position:absolute;inset:0;transform-origin:center;transition:transform .4s,opacity .35s,filter .35s;will-change:transform,opacity}
+.flip{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.2,.75,.25,1)}
+.flip.turned{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:22px;padding:18px;color:white;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 18px 40px #0008,inset 0 1px 0 #ffffff45;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.face:after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 5% 0,#ffffff38,transparent 60%);pointer-events:none}
+.face>*{position:relative;z-index:1}
+.face.back{transform:rotateY(180deg);background:linear-gradient(145deg,#17241c,#09120d)}
+.card-head,.card-bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-bottom{align-items:flex-end}
+.bank{font-size:18px;font-weight:800}.type{font-size:10px;font-weight:800;letter-spacing:1px;padding:5px 9px;border-radius:20px;background:#0004;border:1px solid #ffffff40}
+.chip{width:42px;height:31px;border-radius:7px;background:linear-gradient(135deg,#ffe8a3,#b88a2e);box-shadow:inset 0 0 0 1px #0003}
+.cardnum{font-size:17px;letter-spacing:2px;direction:ltr;text-align:left;text-shadow:0 1px 3px #0006}
+.face small{display:block;font-size:10px;opacity:.75;margin-bottom:2px}.face b{font-size:15px}
+.backtitle{font-size:15px;font-weight:800}.backinfo{font-size:12px;line-height:1.8;color:#d8e8dd;overflow:auto;max-height:95px}
+.emptydeck{position:absolute;inset:0;border-radius:22px;border:2px dashed #ffffff35;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);cursor:pointer}
+.dots{display:flex;justify-content:center;gap:6px;margin:8px}.dots i{width:6px;height:6px;background:#ffffff35;border-radius:9px}.dots i.on{width:18px;background:var(--green)}
+.tx{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid var(--border)}
+.tx:first-child{border-top:0}.txname{font-weight:650}.txmeta{font-size:12px;color:var(--muted);margin-top:3px}
+.txamount{white-space:nowrap;text-align:end;font-weight:700}.tx select{width:auto;padding:4px 7px;font-size:12px;margin-top:6px}
+.x{background:none;color:var(--muted);padding:0 5px;font-size:20px}
+.accountline{display:flex;align-items:center;gap:7px;padding:8px 0;border-top:1px solid var(--border)}
+.accountline:first-child{border-top:0}.accountline span{flex:1}
+.bar{height:7px;background:#ffffff15;border-radius:8px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--green)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#102019;border:1px solid var(--green);padding:10px 16px;border-radius:20px;opacity:0;transition:.2s;pointer-events:none;z-index:8}
+#toast.show{opacity:1}
+</style>
 </head>
 <body>
-  <div class="top">
-    <h1>💰 مصروفي</h1>
-    <select id="month" style="width:auto" aria-label="الشهر"></select>
+<header class="top">
+  <h1>💰 <span data-i="app">مصروفي</span></h1>
+  <div class="row">
+    <button class="secondary small" id="langBtn">EN</button>
+    <select id="month" class="small" style="width:auto" aria-label="Month"></select>
   </div>
+</header>
 
-  <section class="card">
-    <div class="stats">
-      <div class="stat"><small>مصروفات</small><b id="totalOut" class="out">0</b></div>
-      <div class="stat"><small>دخل</small><b id="totalIn" class="in">0</b></div>
-      <div class="stat"><small>الصافي</small><b id="net">0</b></div>
+<section class="panel">
+  <div class="deck" id="deck"></div>
+  <div class="dots" id="dots"></div>
+  <p class="muted" id="swipeHint" style="text-align:center"></p>
+  <div class="between">
+    <span class="muted" id="cardCounter"></span>
+    <button class="secondary small" id="addCardBtn"></button>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="stats">
+    <div class="stat"><small data-i="expenses"></small><b class="out" id="sumOut">0</b></div>
+    <div class="stat"><small data-i="income"></small><b class="in" id="sumIn">0</b></div>
+    <div class="stat"><small data-i="net"></small><b id="sumNet">0</b></div>
+  </div>
+  <div id="limitInfo"></div>
+</section>
+
+<section class="panel">
+  <h2 data-i="pasteTitle"></h2>
+  <textarea id="sms" data-ph="smsHint"></textarea>
+  <div class="row" style="margin-top:8px">
+    <button id="parseBtn"></button>
+    <button class="secondary" id="pasteBtn"></button>
+  </div>
+  <p class="muted" id="msg"></p>
+</section>
+
+<section class="panel">
+  <h2 data-i="manualTitle"></h2>
+  <div class="form">
+    <input id="amount" type="number" min="0" step="0.01" data-ph="amountHint">
+    <input id="merchant" data-ph="merchantHint">
+    <div class="row"><select id="direction"></select><select id="category"></select></div>
+    <select id="accountSelect"></select>
+    <button id="addTxBtn"></button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2 data-i="transactions"></h2>
+  <div id="transactions"></div>
+</section>
+
+<section class="panel">
+  <div class="between">
+    <h2 data-i="accounts"></h2>
+    <button class="secondary small" id="manageBtn"></button>
+  </div>
+  <div id="accountsList"></div>
+</section>
+
+<section class="panel">
+  <details>
+    <summary data-i="backup"></summary>
+    <div class="form" style="margin-top:12px">
+      <button class="secondary" id="backupBtn"></button>
+      <textarea id="restoreText" data-ph="restoreHint"></textarea>
+      <button class="secondary" id="restoreBtn"></button>
+      <button class="danger" id="wipeBtn"></button>
     </div>
-    <div id="limitInfo"></div>
-  </section>
-
-  <section class="card">
-    <h2>➕ الصق رسالة البنك</h2>
-    <textarea id="sms" placeholder="الصق رسالة البنك هنا…"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button id="parseBtn">حلّل وضيف</button>
-      <button class="secondary" id="pasteBtn">لصق من الحافظة</button>
-    </div>
-    <p class="msg" id="message"></p>
-  </section>
-
-  <section class="card">
-    <h2>إضافة عملية يدويًا</h2>
-    <div class="form">
-      <input id="amount" type="number" min="0" step="0.01" placeholder="المبلغ">
-      <input id="merchant" placeholder="الوصف أو المكان">
-      <div class="inline">
-        <select id="direction"><option value="out">مصروف</option><option value="in">دخل</option></select>
-        <select id="category"></select>
-      </div>
-      <select id="account"></select>
-      <button id="addBtn">إضافة العملية</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="between">
-      <h2>💳 الحسابات والكروت</h2>
-      <button class="secondary" id="addAccountBtn">إضافة حساب</button>
-    </div>
-    <div id="accounts"></div>
-    <p class="muted">أدخل اسم الحساب وآخر ٤ أرقام اختياريًا. لا تدخل رقم الكارت كاملًا.</p>
-  </section>
-
-  <section class="card">
-    <h2>🧾 العمليات</h2>
-    <div id="transactions"></div>
-  </section>
-
-  <section class="card">
-    <details>
-      <summary>نسخ احتياطي واستعادة</summary>
-      <div class="form" style="margin-top:12px">
-        <button class="secondary" id="backupBtn">نسخ البيانات JSON</button>
-        <button class="secondary" id="csvBtn">تنزيل CSV</button>
-        <textarea id="restoreText" placeholder="الصق نسخة JSON هنا للاستعادة"></textarea>
-        <button class="secondary" id="restoreBtn">استعادة البيانات</button>
-        <button class="danger" id="wipeBtn">مسح كل البيانات</button>
-      </div>
-    </details>
-  </section>
-  <div id="toast"></div>
+  </details>
+</section>
+<div id="toast"></div>
 
 <script>
 "use strict";
 
-const KEY = "masrofi_v3";
-const CATS = ["أكل وشراب","سوبرماركت","مواصلات","فواتير واتصالات","تسوق","ترفيه","صحة","تحويلات","سحب نقدي","دخل","أخرى"];
-const RULES = [
-  ["سحب نقدي",["atm","سحب نقدي","cash withdrawal","withdrawal"]],
-  ["أكل وشراب",["talabat","طلبات","restaurant","مطعم","cafe","كافيه","coffee","starbucks","mcdonald","kfc"]],
-  ["سوبرماركت",["carrefour","كارفور","supermarket","سوبرماركت","spinneys","سعودي","kazyon"]],
-  ["مواصلات",["uber","careem","كريم","indrive","بنزين","مترو","قطار","parking"]],
-  ["فواتير واتصالات",["vodafone","فودافون","orange","أورانج","etisalat","اتصالات","كهرباء","فاتورة","fawry","فوري"]],
-  ["تسوق",["amazon","noon","jumia","shein","zara","ملابس","ikea"]],
-  ["ترفيه",["netflix","spotify","shahid","سينما","playstation","steam","youtube"]],
-  ["صحة",["صيدلية","pharmacy","مستشفى","hospital","عيادة","دواء"]],
-  ["تحويلات",["instapay","انستاباي","تحويل","transfer","wallet","محفظة"]]
+const KEY="masrofy_bilingual_v1";
+const COLORS=[["#0f3d2a","#22c55e"],["#0b3b3a","#14b8a6"],["#14305e","#3b82f6"],["#3b1d6e","#8b5cf6"],["#5a2a0c","#f59e0b"],["#5b1534","#ec4899"]];
+const CATS=["food","market","transport","bills","shopping","fun","health","transfer","cash","other"];
+
+const words={
+ ar:{
+  app:"مصروفي",expenses:"مصروفات",income:"دخل",net:"الصافي",
+  pasteTitle:"➕ الصق رسالة البنك",smsHint:"الصق نص رسالة البنك هنا",
+  manualTitle:"إضافة عملية يدويًا",amountHint:"المبلغ",merchantHint:"الوصف أو المكان",
+  transactions:"🧾 عمليات الكارت الظاهر",accounts:"الحسابات والكروت",backup:"نسخ احتياطي",
+  restoreHint:"الصق نسخة البيانات هنا",addCard:"إضافة كارت",
+  parse:"حلّل وضيف",paste:"لصق من الحافظة",addTx:"إضافة العملية",
+  manage:"إدارة الكروت",backupBtn:"نسخ البيانات JSON",restoreBtn:"استعادة البيانات",
+  wipe:"مسح كل البيانات",hint:"اسحب الكارت يمين أو شمال عشان يطير لورا. اضغط عليه عشان تقلبه.",
+  empty:"اضغط هنا لإضافة أول كارت",noCards:"مفيش كروت لسه",
+  credit:"ائتمان",debit:"خصم مباشر",available:"الرصيد / المتاح",
+  limit:"الحد الائتماني",spent:"مصروف الشهر",noTx:"مفيش عمليات على الكارت ده في الشهر المحدد.",
+  all:"كل الحسابات",uncategorized:"غير محدد",incomeOpt:"دخل",expenseOpt:"مصروف",
+  pickAmount:"اكتب مبلغ صحيح",added:"اتضافت العملية",
+  parsed:"عملية اتضافت. راجع المبلغ والتصنيف.",noneParsed:"ملقتش مبلغ واضح في الرسالة.",
+  pasteFail:"الصق الرسالة يدويًا",askBank:"اسم البنك أو الحساب:",
+  askLast4:"آخر ٤ أرقام (اختياري):",askType:"اكتب credit للكريدت أو debit للديبت:",
+  deleted:"تم حذف البيانات",restoreOk:"تمت الاستعادة",restoreBad:"نسخة البيانات غير صالحة",
+  restoreConfirm:"الاستعادة هتستبدل البيانات الحالية. تكمل؟",
+  wipeConfirm:"تمسح كل الحسابات والعمليات؟",deleteConfirm:"حذف الكارت والعمليات المرتبطة به؟",
+  balance:"الرصيد",merchant:"المكان",type:"النوع",date:"التاريخ",backHint:"اضغط على الكارت للرجوع"
+ },
+ en:{
+  app:"Masrofy",expenses:"Expenses",income:"Income",net:"Net",
+  pasteTitle:"➕ Paste bank SMS",smsHint:"Paste the bank message here",
+  manualTitle:"Add transaction manually",amountHint:"Amount",merchantHint:"Description or merchant",
+  transactions:"🧾 Visible card transactions",accounts:"Accounts & cards",backup:"Backup",
+  restoreHint:"Paste backup JSON here",addCard:"Add card",
+  parse:"Analyze & add",paste:"Paste from clipboard",addTx:"Add transaction",
+  manage:"Manage cards",backupBtn:"Copy JSON backup",restoreBtn:"Restore data",
+  wipe:"Delete all data",hint:"Swipe left or right to send the card back. Tap it to flip.",
+  empty:"Tap here to add your first card",noCards:"No cards yet",
+  credit:"Credit",debit:"Debit",available:"Balance / available",
+  limit:"Credit limit",spent:"Spent this month",noTx:"No transactions for this card in this month.",
+  all:"All accounts",uncategorized:"Unassigned",incomeOpt:"Income",expenseOpt:"Expense",
+  pickAmount:"Enter a valid amount",added:"Transaction added",
+  parsed:"transaction added. Check its amount and category.",noneParsed:"No clear amount found in the message.",
+  pasteFail:"Paste the message manually",askBank:"Bank or account name:",
+  askLast4:"Last 4 digits (optional):",askType:"Type credit or debit:",
+  deleted:"All data deleted",restoreOk:"Data restored",restoreBad:"Invalid backup data",
+  restoreConfirm:"Restore replaces current data. Continue?",
+  wipeConfirm:"Delete all accounts and transactions?",deleteConfirm:"Delete this card and its linked transactions?",
+  balance:"Balance",merchant:"Merchant",type:"Type",date:"Date",backHint:"Tap the card to flip back"
+ }
+};
+const catNames={
+ ar:{food:"أكل وشراب",market:"سوبرماركت",transport:"مواصلات",bills:"فواتير واتصالات",shopping:"تسوق",fun:"ترفيه",health:"صحة",transfer:"تحويلات",cash:"سحب نقدي",other:"أخرى"},
+ en:{food:"Food & drink",market:"Groceries",transport:"Transport",bills:"Bills & phone",shopping:"Shopping",fun:"Entertainment",health:"Health",transfer:"Transfers",cash:"Cash withdrawal",other:"Other"}
+};
+const RULES=[
+ ["cash",["atm","cash withdrawal","سحب نقدي"]],
+ ["food",["talabat","طلبات","restaurant","مطعم","cafe","كافيه","coffee","starbucks","mcdonald","kfc"]],
+ ["market",["carrefour","كارفور","supermarket","سوبرماركت","spinneys","kazyon"]],
+ ["transport",["uber","careem","كريم","indrive","بنزين","مترو","قطار","parking"]],
+ ["bills",["vodafone","فودافون","orange","أورانج","etisalat","اتصالات","كهرباء","فاتورة","fawry","فوري"]],
+ ["shopping",["amazon","noon","jumia","shein","zara","ملابس","ikea"]],
+ ["fun",["netflix","spotify","shahid","سينما","playstation","steam","youtube"]],
+ ["health",["صيدلية","pharmacy","مستشفى","hospital","عيادة","دواء"]],
+ ["transfer",["instapay","انستاباي","تحويل","transfer","wallet","محفظة"]]
 ];
 
-function initialState(){
-  try {
-    const s = JSON.parse(localStorage.getItem(KEY));
-    if (s && Array.isArray(s.tx) && Array.isArray(s.accounts)) return s;
-  } catch (_) {}
-  return {accounts:[], tx:[]};
+function loadState(){
+ try{
+  const s=JSON.parse(localStorage.getItem(KEY));
+  if(s&&Array.isArray(s.accounts)&&Array.isArray(s.tx))return s;
+ }catch(e){}
+ return {lang:"ar",accounts:[],tx:[]};
 }
-let state = initialState();
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-}[c]));
-const money = n => Number(n || 0).toLocaleString("ar-EG",{maximumFractionDigits:2});
-const monthKey = t => {
-  const d = new Date(t);
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
-};
-function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+let state=loadState();
+let lang=state.lang==="en"?"en":"ar";
+let drag=null,swipeHappened=false;
+
+const $=id=>document.getElementById(id);
+const tr=k=>words[lang][k]||k;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=n=>Number(n||0).toLocaleString(lang==="ar"?"ar-EG":"en-US",{maximumFractionDigits:2});
+const monthKey=t=>{const d=new Date(t);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const currentAccount=()=>state.accounts[0]||null;
+const accountById=id=>state.accounts.find(a=>a.id===id);
+const accountLabel=a=>a?a.name+(a.last4?" ••"+a.last4:""):tr("uncategorized");
+
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function toast(text){
-  $("toast").textContent = text;
-  $("toast").classList.add("show");
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(()=>$("toast").classList.remove("show"),2300);
+ const el=$("toast");el.textContent=text;el.classList.add("show");
+ clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2300);
 }
-function accountName(id){
-  const a = state.accounts.find(x=>x.id===id);
-  return a ? a.name + (a.last4 ? " ••"+a.last4 : "") : "غير محدد";
+function applyLanguage(){
+ document.documentElement.lang=lang;
+ document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+ document.querySelectorAll("[data-i]").forEach(el=>el.textContent=tr(el.dataset.i));
+ document.querySelectorAll("[data-ph]").forEach(el=>el.placeholder=tr(el.dataset.ph));
+ $("langBtn").textContent=lang==="ar"?"EN":"عربي";
+ $("addCardBtn").textContent=tr("addCard");
+ $("parseBtn").textContent=tr("parse");
+ $("pasteBtn").textContent=tr("paste");
+ $("addTxBtn").textContent=tr("addTx");
+ $("manageBtn").textContent=tr("manage");
+ $("backupBtn").textContent=tr("backupBtn");
+ $("restoreBtn").textContent=tr("restoreBtn");
+ $("wipeBtn").textContent=tr("wipe");
+ $("swipeHint").textContent=tr("hint");
+ fillFormSelects();
+ render();
 }
-function categoryFor(text){
-  const s = text.toLowerCase();
-  for(const [cat,words] of RULES) if(words.some(w=>s.includes(w))) return cat;
-  return "أخرى";
+function fillFormSelects(){
+ $("direction").innerHTML=`<option value="out">${tr("expenseOpt")}</option><option value="in">${tr("incomeOpt")}</option>`;
+ $("category").innerHTML=CATS.map(c=>`<option value="${c}">${esc(catNames[lang][c])}</option>`).join("");
+ const previous=$("accountSelect").value;
+ $("accountSelect").innerHTML=`<option value="">${tr("uncategorized")}</option>`+
+ state.accounts.map(a=>`<option value="${esc(a.id)}">${esc(accountLabel(a))}</option>`).join("");
+ if(state.accounts.some(a=>a.id===previous))$("accountSelect").value=previous;
 }
-function parseMessage(raw){
-  const text = raw.replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/٫/g,".").replace(/٬/g,",").replace(/\s+/g," ").trim();
-  if(!text) return null;
 
-  const amountRe = /(?:EGP|LE|L\.E\.?|جنيه|ج\.م|£)\s*([\d,]+(?:\.\d+)?|[\d]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?|[\d]+(?:\.\d+)?)\s*(?:EGP|LE|L\.E\.?|جنيه|ج\.م|£)/ig;
-  let amount = null;
-  for(const m of text.matchAll(amountRe)){
-    const before = text.slice(Math.max(0,m.index-30),m.index).toLowerCase();
-    if(/balance|الرصيد|المتاح/.test(before)) continue;
-    amount = Number((m[1] || m[2]).replace(/,/g,""));
-    break;
-  }
-  if(!Number.isFinite(amount) || amount <= 0) return null;
-
-  const credit = /(credited|received|deposit|salary|refund|cashback|إيداع|ايداع|استلام|راتب|دائن|وارد|مرتجع|استرداد)/i.test(text);
-  const debit = /(purchase|spent|withdraw|debited|paid|payment|شراء|سحب|خصم|تم دفع|دفع|مدين)/i.test(text);
-  const dir = credit && !debit ? "in" : "out";
-
-  const last4Match = text.match(/(?:card|بطاقة|كارت|ending|\*{2,}|x{2,})\D{0,8}(\d{4})/i);
-  const last4 = last4Match ? last4Match[1] : "";
-  const bankNames = ["CIB","البنك الأهلي","بنك مصر","QNB","HSBC","بنك القاهرة","Telda","فودافون كاش","انستاباي"];
-  const lower = text.toLowerCase();
-  const bank = bankNames.find(b=>lower.includes(b.toLowerCase())) || "";
-
-  const acc = state.accounts.find(a => last4 && a.last4 === last4) ||
-    (bank ? state.accounts.find(a=>a.name.toLowerCase()===bank.toLowerCase()) : null);
-  const merchantMatch = text.match(/(?:at|لدى|عند|merchant[:\s]+)\s*([^.,;()\d]{2,35})/i);
-  const merchant = merchantMatch ? merchantMatch[1].trim() : text.slice(0,32);
-
-  return {
-    id:"t"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
-    ts:Date.now(), amount, dir, category:dir==="in"?"دخل":categoryFor(text+" "+merchant),
-    merchant, accountId:acc ? acc.id : "", source:"sms"
-  };
-}
-function fillSelects(){
-  $("category").innerHTML = CATS.filter(c=>c!=="دخل").map(c=>`<option>${esc(c)}</option>`).join("");
-  const options = '<option value="">غير محدد</option>' +
-    state.accounts.map(a=>`<option value="${esc(a.id)}">${esc(accountName(a.id))}</option>`).join("");
-  $("account").innerHTML = options;
-}
 function render(){
-  const monthSelect = $("month");
-  const oldMonth = monthSelect.value;
-  const months = [...new Set([monthKey(Date.now()),...state.tx.map(t=>monthKey(t.ts))])].sort().reverse();
-  monthSelect.innerHTML = months.map(k=>{
-    const [y,m] = k.split("-");
-    const label = new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
-    return `<option value="${k}">${esc(label)}</option>`;
-  }).join("");
-  monthSelect.value = months.includes(oldMonth) ? oldMonth : months[0];
+ const monthSelect=$("month"),old=monthSelect.value;
+ const months=[...new Set([monthKey(Date.now()),...state.tx.map(t=>monthKey(t.ts))])].sort().reverse();
+ monthSelect.innerHTML=months.map(k=>{
+  const [y,m]=k.split("-");
+  const label=new Date(+y,+m-1,1).toLocaleDateString(lang==="ar"?"ar-EG":"en-US",{month:"long",year:"numeric"});
+  return `<option value="${k}">${esc(label)}</option>`;
+ }).join("");
+ monthSelect.value=months.includes(old)?old:months[0];
 
-  const selectedMonth = monthSelect.value;
-  const tx = state.tx.filter(t=>monthKey(t.ts)===selectedMonth).sort((a,b)=>b.ts-a.ts);
-  const out = tx.filter(t=>t.dir==="out").reduce((s,t)=>s+Number(t.amount),0);
-  const inc = tx.filter(t=>t.dir==="in").reduce((s,t)=>s+Number(t.amount),0);
-  $("totalOut").textContent = money(out);
-  $("totalIn").textContent = money(inc);
-  $("net").textContent = money(inc-out);
-  $("net").className = inc-out >= 0 ? "in" : "out";
+ renderDeck();
+ renderTransactions();
+ renderAccounts();
+ renderStats();
+ fillFormSelects();
+}
+function renderDeck(){
+ const deck=$("deck");
+ if(!state.accounts.length){
+  deck.innerHTML=`<div class="emptydeck" id="emptyDeck">＋<br>${tr("empty")}</div>`;
+  $("emptyDeck").onclick=addCard;
+  $("dots").innerHTML="";$("cardCounter").textContent=tr("noCards");
+  return;
+ }
+ const mk=$("month").value;
+ deck.innerHTML=state.accounts.map((a,i)=>{
+  const spent=state.tx.filter(t=>t.accountId===a.id&&t.dir==="out"&&monthKey(t.ts)===mk).reduce((s,t)=>s+Number(t.amount),0);
+  const colors=COLORS[(a.color||0)%COLORS.length];
+  const backInfo=`
+   <div>${tr("type")}: ${a.type==="credit"?tr("credit"):tr("debit")}</div>
+   <div>${tr("balance")}: ${a.balance==null?"—":fmt(a.balance)}</div>
+   <div>${tr("spent")}: ${fmt(spent)}</div>
+   ${Number(a.limit)>0?`<div>${tr("limit")}: ${fmt(a.limit)}</div>`:""}
+   <div>${tr("backHint")}</div>`;
+  return `<div class="card-shell" data-id="${esc(a.id)}" style="--c1:${colors[0]};--c2:${colors[1]};z-index:${100-i};transform:translateY(${i*11}px) scale(${1-i*.045});filter:brightness(${1-i*.13});opacity:${i>3?0:1}">
+   <div class="flip">
+    <div class="face front">
+     <div class="card-head"><div class="bank">${esc(a.name)}</div><span class="type">${a.type==="credit"?"CREDIT":"DEBIT"}</span></div>
+     <div class="chip"></div>
+     <div class="cardnum">•••• •••• •••• ${esc(a.last4||"••••")}</div>
+     <div class="card-bottom"><div><small>${tr("spent")}</small><b>${fmt(spent)}</b></div><div style="text-align:end"><small>${tr("available")}</small><b>${a.balance==null?"—":fmt(a.balance)}</b></div></div>
+    </div>
+    <div class="face back"><div class="backtitle">${esc(a.name)} · ${tr("flip")}</div><div class="backinfo">${backInfo}</div><div class="cardnum">•••• •••• •••• ${esc(a.last4||"••••")}</div></div>
+   </div>
+  </div>`;
+ }).join("");
+ $("dots").innerHTML=state.accounts.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("");
+ $("cardCounter").textContent=`${1} / ${state.accounts.length}`;
+}
+function renderStats(){
+ const selected=$("month").value;
+ const acc=currentAccount();
+ const tx=state.tx.filter(t=>monthKey(t.ts)===selected&&(!acc||t.accountId===acc.id));
+ const out=tx.filter(t=>t.dir==="out").reduce((s,t)=>s+Number(t.amount),0);
+ const inc=tx.filter(t=>t.dir==="in").reduce((s,t)=>s+Number(t.amount),0);
+ $("sumOut").textContent=fmt(out);$("sumIn").textContent=fmt(inc);
+ $("sumNet").textContent=fmt(inc-out);$("sumNet").className=inc-out>=0?"in":"out";
+ $("limitInfo").innerHTML=acc&&acc.type==="credit"&&Number(acc.limit)>0?
+  `<p class="muted">${tr("spent")}: ${fmt(out)} / ${fmt(acc.limit)}</p><div class="bar"><i style="width:${Math.min(100,out/acc.limit*100)}%"></i></div>`:"";
+}
+function renderTransactions(){
+ const selected=$("month").value,acc=currentAccount();
+ const list=state.tx.filter(t=>monthKey(t.ts)===selected&&(!acc||t.accountId===acc.id)).sort((a,b)=>b.ts-a.ts);
+ $("transactions").innerHTML=list.length?list.map(t=>`
+  <div class="tx">
+   <div>
+    <div class="txname">${esc(t.merchant||tr("merchant"))}</div>
+    <div class="txmeta">${new Date(t.ts).toLocaleDateString(lang==="ar"?"ar-EG":"en-US")} · ${esc(accountLabel(accountById(t.accountId)))}</div>
+    <div class="row">
+     <select aria-label="Category" onchange="setCategory('${esc(t.id)}',this.value)">
+      ${CATS.map(c=>`<option value="${c}" ${c===t.category?"selected":""}>${esc(catNames[lang][c])}</option>`).join("")}
+     </select>
+     <button class="x" aria-label="Delete" onclick="deleteTx('${esc(t.id)}')">×</button>
+    </div>
+   </div>
+   <div class="txamount ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"+":"−"}${fmt(t.amount)}</div>
+  </div>`).join(""):`<p class="muted">${tr("noTx")}</p>`;
+}
+function renderAccounts(){
+ $("accountsList").innerHTML=state.accounts.length?state.accounts.map(a=>`
+  <div class="accountline">
+   <span>${esc(accountLabel(a))} · ${a.type==="credit"?tr("credit"):tr("debit")}</span>
+   <button class="x" aria-label="Delete card" onclick="deleteAccount('${esc(a.id)}')">×</button>
+  </div>`).join(""):`<p class="muted">${tr("noCards")}</p>`;
+}
 
-  const topAccount = state.accounts[0];
-  $("limitInfo").innerHTML = topAccount && Number(topAccount.limit)>0
-    ? `<p class="muted">المصروفات: ${money(out)} من حد ${money(topAccount.limit)}</p>
-       <div class="bar"><i style="width:${Math.min(100,out/topAccount.limit*100)}%"></i></div>`
-    : "";
-
-  $("transactions").innerHTML = tx.length ? tx.map(t=>`
-    <div class="tx">
-      <div>
-        <div class="txname">${esc(t.merchant || "عملية")}</div>
-        <div class="txmeta">${new Date(t.ts).toLocaleDateString("ar-EG")} · ${esc(accountName(t.accountId))}</div>
-        <div class="row">
-          <select aria-label="التصنيف" onchange="changeCategory('${esc(t.id)}',this.value)">
-            ${CATS.map(c=>`<option ${c===t.category?"selected":""}>${esc(c)}</option>`).join("")}
-          </select>
-          <select aria-label="الحساب" onchange="changeAccount('${esc(t.id)}',this.value)">
-            <option value="">غير محدد</option>
-            ${state.accounts.map(a=>`<option value="${esc(a.id)}" ${a.id===t.accountId?"selected":""}>${esc(accountName(a.id))}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-      <div class="amount ${t.dir==="in"?"in":"out"}">
-        ${t.dir==="in"?"+":"−"}${money(t.amount)}
-        <button class="smallbtn" aria-label="حذف العملية" onclick="deleteTx('${esc(t.id)}')">×</button>
-      </div>
-    </div>`).join("") : '<p class="muted">مفيش عمليات في الشهر ده.</p>';
-
-  $("accounts").innerHTML = state.accounts.length ? state.accounts.map(a=>`
-    <div class="account">
-      <div class="accountline">
-        <input value="${esc(a.name)}" aria-label="اسم الحساب" onchange="updateAccount('${esc(a.id)}','name',this.value)">
-        <span class="muted">${a.last4 ? "••"+esc(a.last4) : ""}</span>
-        <button class="smallbtn" aria-label="حذف الحساب" onclick="deleteAccount('${esc(a.id)}')">×</button>
-      </div>
-      <div class="inline" style="margin-top:7px">
-        <select onchange="updateAccount('${esc(a.id)}','type',this.value)">
-          <option value="debit" ${a.type==="debit"?"selected":""}>Debit</option>
-          <option value="credit" ${a.type==="credit"?"selected":""}>Credit</option>
-        </select>
-        <input type="number" min="0" placeholder="الحد الائتماني" value="${Number(a.limit)||""}" onchange="updateAccount('${esc(a.id)}','limit',this.value)">
-      </div>
-    </div>`).join("") : '<p class="muted">لسه مفيش حسابات. تقدر تضيفها أو تسجل العمليات بدون حساب.</p>';
-
-  fillSelects();
-}
-function addTransaction(t){
-  if(!t) return false;
-  state.tx.push(t);
-  save();render();
-  return true;
-}
-function changeCategory(id,value){
-  const t=state.tx.find(x=>x.id===id);if(t){t.category=value;save();render();}
-}
-function changeAccount(id,value){
-  const t=state.tx.find(x=>x.id===id);if(t){t.accountId=value;save();render();}
-}
-function deleteTx(id){
-  if(confirm("تمسح العملية دي؟")){state.tx=state.tx.filter(t=>t.id!==id);save();render();}
-}
-function updateAccount(id,key,value){
-  const a=state.accounts.find(x=>x.id===id);if(!a)return;
-  a[key]=key==="limit"?Math.max(0,Number(value)||0):value;save();render();
+function addCard(){
+ const name=prompt(tr("askBank"));if(!name||!name.trim())return;
+ const last4=(prompt(tr("askLast4"))||"").replace(/\D/g,"").slice(0,4);
+ const type=(prompt(tr("askType"))||"").toLowerCase().includes("credit")?"credit":"debit";
+ state.accounts.unshift({
+  id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+  name:name.trim(),last4,type,limit:0,balance:null,color:state.accounts.length%COLORS.length
+ });
+ save();render();
 }
 function deleteAccount(id){
-  if(!confirm("حذف الحساب؟ العمليات المرتبطة به ستصبح غير محددة."))return;
-  state.accounts=state.accounts.filter(a=>a.id!==id);
-  state.tx.forEach(t=>{if(t.accountId===id)t.accountId="";});
-  save();render();
+ if(!confirm(tr("deleteConfirm")))return;
+ state.accounts=state.accounts.filter(a=>a.id!==id);
+ state.tx.forEach(t=>{if(t.accountId===id)t.accountId=""});
+ save();render();
 }
-function addAccount(){
-  const name=prompt("اكتب اسم البنك أو الحساب:");
-  if(!name || !name.trim())return;
-  let last4=(prompt("آخر ٤ أرقام (اختياري):")||"").replace(/\D/g,"").slice(0,4);
-  state.accounts.push({
-    id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
-    name:name.trim(),last4,type:"debit",limit:0
-  });
-  save();render();
+function setCategory(id,value){
+ const t=state.tx.find(x=>x.id===id);if(t){t.category=value;save();render();}
 }
-$("addBtn").onclick=()=>{
-  const amount=Number($("amount").value);
-  if(!Number.isFinite(amount)||amount<=0){toast("اكتب مبلغًا صحيحًا");return;}
-  addTransaction({
-    id:"m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
-    ts:Date.now(),amount,dir:$("direction").value,
-    category:$("direction").value==="in"?"دخل":$("category").value,
-    merchant:$("merchant").value.trim()||"عملية يدوية",
-    accountId:$("account").value,source:"manual"
-  });
-  $("amount").value="";$("merchant").value="";toast("اتضافت العملية");
+function deleteTx(id){
+ state.tx=state.tx.filter(t=>t.id!==id);save();render();
+}
+function addTx(t){state.tx.push(t);save();render();}
+function newId(){return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+function categoryFor(text){
+ const s=text.toLowerCase();
+ for(const [cat,keys] of RULES)if(keys.some(k=>s.includes(k)))return cat;
+ return "other";
+}
+function parseSms(raw){
+ const text=raw.replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/٫/g,".").replace(/٬/g,",").replace(/\s+/g," ").trim();
+ if(!text)return null;
+ const re=/(?:EGP|LE|L\.E\.?|جنيه|ج\.م|£)\s*([\d,]+(?:\.\d+)?)|([\d,]+(?:\.\d+)?)\s*(?:EGP|LE|L\.E\.?|جنيه|ج\.م|£)/ig;
+ let amount=null;
+ for(const m of text.matchAll(re)){
+  const before=text.slice(Math.max(0,m.index-30),m.index).toLowerCase();
+  if(/balance|الرصيد|المتاح/.test(before))continue;
+  amount=Number((m[1]||m[2]).replace(/,/g,""));break;
+ }
+ if(!Number.isFinite(amount)||amount<=0)return null;
+ const isCredit=/(credited|received|deposit|salary|refund|cashback|إيداع|ايداع|استلام|راتب|دائن|وارد|مرتجع|استرداد)/i.test(text);
+ const isDebit=/(purchase|spent|withdraw|debited|paid|payment|شراء|سحب|خصم|تم دفع|مدين)/i.test(text);
+ const dir=isCredit&&!isDebit?"in":"out";
+ const last4Match=text.match(/(?:card|بطاقة|كارت|ending|\*{2,}|x{2,})\D{0,8}(\d{4})/i);
+ const last4=last4Match?last4Match[1]:"";
+ const acc=last4?state.accounts.find(a=>a.last4===last4):null;
+ const merchantMatch=text.match(/(?:at|لدى|عند|merchant[:\s]+)\s*([^.,;()\d]{2,35})/i);
+ const merchant=merchantMatch?merchantMatch[1].trim():text.slice(0,32);
+ return {id:newId(),ts:Date.now(),amount,dir,category:dir==="in"?"other":categoryFor(text+" "+merchant),merchant,accountId:acc?acc.id:(currentAccount()?.id||""),source:"sms"};
+}
+
+$("deck").addEventListener("click",e=>{
+ if(swipeHappened){swipeHappened=false;return;}
+ const shell=e.target.closest(".card-shell");
+ if(!shell||shell!==$("deck").querySelector(".card-shell"))return;
+ shell.querySelector(".flip").classList.toggle("turned");
+});
+$("deck").addEventListener("pointerdown",e=>{
+ const shell=$("deck").querySelector(".card-shell");
+ if(!shell||!shell.contains(e.target))return;
+ drag={x:e.clientX,y:e.clientY,dx:0,dy:0,shell,pointerId:e.pointerId};
+ shell.style.transition="none";
+ try{$("deck").setPointerCapture(e.pointerId)}catch(_){}
+});
+$("deck").addEventListener("pointermove",e=>{
+ if(!drag)return;
+ drag.dx=e.clientX-drag.x;drag.dy=e.clientY-drag.y;
+ if(Math.abs(drag.dx)>8)drag.shell.querySelector(".flip").classList.remove("turned");
+ drag.shell.style.transform=`translate(${drag.dx}px,${drag.dy}px) rotate(${drag.dx/18}deg)`;
+});
+function endDrag(){
+ if(!drag)return;
+ const d=drag;drag=null;d.shell.style.transition="";
+ if(Math.abs(d.dx)>85){
+  swipeHappened=true;
+  d.shell.style.transition="transform .28s ease-in,opacity .28s";
+  d.shell.style.transform=`translate(${Math.sign(d.dx)*650}px,${d.dy}px) rotate(${Math.sign(d.dx)*35}deg)`;
+  d.shell.style.opacity="0";
+  setTimeout(()=>{const moved=state.accounts.shift();if(moved)state.accounts.push(moved);save();render();},280);
+ }else{
+  d.shell.style.transform="";
+ }
+}
+$("deck").addEventListener("pointerup",endDrag);
+$("deck").addEventListener("pointercancel",endDrag);
+
+$("langBtn").onclick=()=>{lang=lang==="ar"?"en":"ar";state.lang=lang;save();applyLanguage();};
+$("addCardBtn").onclick=addCard;
+$("manageBtn").onclick=addCard;
+$("month").onchange=render;
+$("addTxBtn").onclick=()=>{
+ const amount=Number($("amount").value);
+ if(!Number.isFinite(amount)||amount<=0){toast(tr("pickAmount"));return;}
+ const dir=$("direction").value;
+ addTx({
+  id:newId(),ts:Date.now(),amount,dir,
+  category:dir==="in"?"other":$("category").value,
+  merchant:$("merchant").value.trim()||tr("merchant"),
+  accountId:$("accountSelect").value||currentAccount()?.id||"",source:"manual"
+ });
+ $("amount").value="";$("merchant").value="";toast(tr("added"));
 };
 $("parseBtn").onclick=()=>{
-  const parts=$("sms").value.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
-  let count=0;
-  for(const part of parts){const t=parseMessage(part);if(t){addTransaction(t);count++;}}
-  $("message").textContent=count ? `اتضافت ${count} عملية. راجع المبلغ والتصنيف قبل الاعتماد.` : "ملقتش مبلغًا واضحًا في الرسالة.";
-  if(count)$("sms").value="";
+ const parts=$("sms").value.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean);
+ let count=0;
+ for(const part of parts){const t=parseSms(part);if(t){addTx(t);count++;}}
+ $("msg").textContent=count?count+" "+tr("parsed"):tr("noneParsed");
+ if(count)$("sms").value="";
 };
 $("pasteBtn").onclick=async()=>{
-  try{$("sms").value=await navigator.clipboard.readText();}
-  catch(_){toast("الصق الرسالة يدويًا في الخانة");}
+ try{$("sms").value=await navigator.clipboard.readText();}
+ catch(e){toast(tr("pasteFail"));}
 };
-$("addAccountBtn").onclick=addAccount;
-$("month").onchange=render;
-
 $("backupBtn").onclick=async()=>{
-  const data=JSON.stringify(state,null,2);
-  try{await navigator.clipboard.writeText(data);toast("اتنسخت البيانات");}
-  catch(_){$("restoreText").value=data;toast("النسخ التلقائي غير متاح؛ البيانات ظهرت في الخانة");}
+ const data=JSON.stringify(state,null,2);
+ try{await navigator.clipboard.writeText(data);toast("OK");}
+ catch(e){$("restoreText").value=data;toast(tr("pasteFail"));}
 };
 $("restoreBtn").onclick=()=>{
-  try{
-    const d=JSON.parse($("restoreText").value);
-    if(!d || !Array.isArray(d.accounts) || !Array.isArray(d.tx))throw new Error();
-    if(!confirm("الاستعادة هتستبدل البيانات الحالية. تكمل؟"))return;
-    state={
-      accounts:d.accounts.filter(a=>a&&typeof a.id==="string").map(a=>({
-        id:a.id,name:String(a.name||"حساب"),last4:String(a.last4||"").replace(/\D/g,"").slice(0,4),
-        type:a.type==="credit"?"credit":"debit",limit:Math.max(0,Number(a.limit)||0)
-      })),
-      tx:d.tx.filter(t=>t&&typeof t==="object"&&Number(t.amount)>0).map(t=>({
-        id:String(t.id||("t"+Math.random())),ts:Number(t.ts)||Date.now(),
-        amount:Number(t.amount),dir:t.dir==="in"?"in":"out",
-        category:CATS.includes(t.category)?t.category:"أخرى",
-        merchant:String(t.merchant||"عملية"),accountId:String(t.accountId||""),source:String(t.source||"restore")
-      }))
-    };
-    save();render();$("restoreText").value="";toast("تمت الاستعادة");
-  }catch(_){toast("ملف النسخة غير صالح");}
-};
-$("csvBtn").onclick=()=>{
-  const quote=s=>'"'+String(s??"").replace(/"/g,'""')+'"';
-  const rows=[["date","type","amount","category","merchant","account"]];
-  state.tx.forEach(t=>rows.push([
-    new Date(t.ts).toISOString().slice(0,10),t.dir,t.amount,t.category,t.merchant,accountName(t.accountId)
-  ]));
-  const csv="\ufeff"+rows.map(r=>r.map(quote).join(",")).join("\n");
-  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  const a=document.createElement("a");a.href=url;a.download="masrofi.csv";a.click();
-  URL.revokeObjectURL(url);
+ try{
+  const d=JSON.parse($("restoreText").value);
+  if(!d||!Array.isArray(d.accounts)||!Array.isArray(d.tx))throw Error();
+  if(!confirm(tr("restoreConfirm")))return;
+  state={
+   lang:d.lang==="en"?"en":"ar",
+   accounts:d.accounts.filter(a=>a&&typeof a.id==="string").map(a=>({
+    id:a.id,name:String(a.name||"Card"),last4:String(a.last4||"").replace(/\D/g,"").slice(0,4),
+    type:a.type==="credit"?"credit":"debit",limit:Math.max(0,Number(a.limit)||0),
+    balance:Number.isFinite(Number(a.balance))?Number(a.balance):null,color:Number(a.color)||0
+   })),
+   tx:d.tx.filter(t=>t&&Number(t.amount)>0).map(t=>({
+    id:String(t.id||newId()),ts:Number(t.ts)||Date.now(),amount:Number(t.amount),
+    dir:t.dir==="in"?"in":"out",category:CATS.includes(t.category)?t.category:"other",
+    merchant:String(t.merchant||"Transaction"),accountId:String(t.accountId||""),source:String(t.source||"restore")
+   }))
+  };
+  lang=state.lang;save();applyLanguage();$("restoreText").value="";toast(tr("restoreOk"));
+ }catch(e){toast(tr("restoreBad"));}
 };
 $("wipeBtn").onclick=()=>{
-  if(confirm("مسح كل الحسابات والعمليات؟ لا يمكن التراجع.")){
-    state={accounts:[],tx:[]};save();render();toast("تم مسح البيانات");
-  }
+ if(confirm(tr("wipeConfirm"))){state={lang,accounts:[],tx:[]};save();render();toast(tr("deleted"));}
 };
-render();
+applyLanguage();
 </script>
 </body>
 </html>
